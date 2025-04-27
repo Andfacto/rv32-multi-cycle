@@ -38,10 +38,10 @@ module decode
     logic [31:0] source_mux2;
     
     always_comb begin
-        addr_rs1_ID_o = imem_i.rtype.rs1;
-        addr_rs2_ID_o = imem_i.rtype.rs2;
+        addr_rs1_ID_o = imem_i.rs1;
+        addr_rs2_ID_o = imem_i.rs2;
         
-        if(imem_i.rtype.opcode == OP_LUI)
+        if(imem_i == OP_LUI)
             source_mux1 = 32'd0;
         else if(control.operand1 == OPERAND_PCIMM)
             source_mux1 = pc_i;
@@ -74,15 +74,15 @@ module decode
     end
     
     reg_file reg_file_dut(
-        .clk_i     (clk_i             ),
-        .rstn_i    (rstn_i            ),
-        .write_en_i(control_i.regfile ),
-        .addr_rs1_i(imem_i.rtype.rs1  ),
-        .addr_rs2_i(imem_i.rtype.rs2  ),
-        .addr_rd_i (addr_rd_i         ),
-        .data_rd_i (data_wb_i         ),
-        .data_rs1_o(data_rs1          ),
-        .data_rs2_o(data_rs2          )
+        .clk_i     (clk_i            ),
+        .rstn_i    (rstn_i           ),
+        .write_en_i(control_i.regfile),
+        .addr_rs1_i(imem_i.rs1       ),
+        .addr_rs2_i(imem_i.rs2       ),
+        .addr_rd_i (addr_rd_i        ),
+        .data_rd_i (data_wb_i        ),
+        .data_rs1_o(data_rs1         ),
+        .data_rs2_o(data_rs2         )
     );
     
     imm_gen imm_gen_dut(
@@ -99,7 +99,7 @@ module decode
     );
     
     always_comb begin
-        casez({imem_i.rtype.funct7, imem_i.rtype.rs2, imem_i.rtype.funct3, imem_i.rtype.opcode})
+        casez({imem_i.funct7, imem_i.rs2, imem_i.funct3, imem_i.opcode})
             LUI    : control = MI_LUI;
             AUIPC  : control = MI_AUIPC;
             JAL    : control = MI_JAL;

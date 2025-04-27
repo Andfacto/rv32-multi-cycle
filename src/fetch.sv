@@ -13,7 +13,7 @@ module fetch
     input  logic [31:0] execute_i,
     output logic [31:0] pc_o,
     output logic [31:0] pc_plus4_o,
-    output instr_t      imem_o
+    output logic [31:0] imem_o
     );
     
     logic [31:0] imem_out;
