@@ -30,9 +30,6 @@ module tb;
     end
     
     always@(posedge clk) begin
-        if(if_pc == 32'h2d00006f) begin
-            $finish;
-        end
         if(print_en) begin
             cycle <= cycle + 1;
             $fwrite(file, "| %5d | ", cycle);
