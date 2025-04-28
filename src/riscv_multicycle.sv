@@ -7,21 +7,16 @@ module riscv_multicycle
     parameter DMemInitFile = "./dmem.mem",
     parameter IMemInitFile = "./imem.mem"
     )(
-    input  logic             clk_i,       // system clock
-    input  logic             rstn_i,      // system reset
-    input  logic  [XLEN-1:0] addr_i,      // memory adddres input for reading
-    output logic  [XLEN-1:0] data_o,      // memory data output for reading
-    output logic             update_o,    // retire signal
-    output logic  [XLEN-1:0] pc_o,        // retired program counter
-    output logic  [XLEN-1:0] instr_o,     // retired instruction
-    output logic  [     4:0] reg_addr_o,  // retired register address
-    output logic  [XLEN-1:0] reg_data_o,  // retired register data
-    output logic  [XLEN-1:0] mem_addr_o,  // retired memory address
-    output logic  [XLEN-1:0] mem_data_o   // retired memory data
+    input  logic            clk_i,       // system clock
+    input  logic            rstn_i,      // system reset
+    output logic [XLEN-1:0] if_pc_o,
+    output logic [XLEN-1:0] id_pc_o,
+    output logic [XLEN-1:0] ex_pc_o,
+    output logic [XLEN-1:0] mem_pc_o,
+    output logic [XLEN-1:0] wb_pc_o
     );
     
     //IF signals
-    logic [31:0] pc_out;
     logic [31:0] imem_out;
     
     //ID signals
@@ -64,7 +59,8 @@ module riscv_multicycle
         .branch_EX_i(branch_EX     ),
         .execute_i  (execute_out_EX),  
         .hazard_i   (hazard_out    ),
-        .pc_o       (pc_out        ),      
+        .pc_o       (id_pc_o       ),
+        .pc_if_o    (if_pc_o       ),      
         .pc_plus4_o (pc_plus4_ID   ),
         .imem_o     (imem_out      )       
     );
@@ -74,7 +70,7 @@ module riscv_multicycle
         .rstn_i        (rstn_i          ),     
         .hazard_i      (hazard_out      ),
         .control_i     (control_WB      ),
-        .pc_i          (pc_out          ),         
+        .pc_i          (id_pc_o         ),         
         .pc_plus4_i    (pc_plus4_ID     ),   
         .imem_i        (imem_out        ),       
         .addr_rd_i     (addr_rd_WB      ),     
@@ -90,12 +86,14 @@ module riscv_multicycle
         .source_mux1_o (execute_in1     ),
         .source_mux2_o (execute_in2     ),
         .addr_rd_o     (addr_rd_EX      ),    
-        .branch_in2_o  (MEM_in          )  
+        .branch_in2_o  (MEM_in          ),
+        .pc_o          (ex_pc_o         )   
     );
     
     execute execute(
         .clk_i     (clk_i          ),  
-        .rstn_i    (rstn_i         ),       
+        .rstn_i    (rstn_i         ),
+        .pc_i      (ex_pc_o        ),       
         .control_i (control_EX     ),  
         .unit_in1_i(execute_in1    ), 
         .unit_in2_i(execute_in2    ),
@@ -107,12 +105,14 @@ module riscv_multicycle
         .pc_plus4_o(pc_plus4_MEM   ),  
         .mem_data_o(mem_data_out   ),    
         .alu_o     (execute_out_MEM),  
-        .execute_o (execute_out_EX )
+        .execute_o (execute_out_EX ),
+        .pc_o      (mem_pc_o       )
     );
     
     memory memory(
         .clk_i     (clk_i          ),
         .rstn_i    (rstn_i         ),
+        .pc_i      (mem_pc_o       ),
         .control_i (control_MEM    ),
         .pc_plus4_i(pc_plus4_MEM   ),
         .addr_rd_i (addr_rd_MEM    ),
@@ -123,7 +123,8 @@ module riscv_multicycle
         .pc_plus4_o(pc_plus4_WB    ),
         .alu_o     (execute_out_WB ),
         .dmem_MEM_o(dmem_out_MEM   ),
-        .dmem_WB_o (dmem_out_WB    )
+        .dmem_WB_o (dmem_out_WB    ),
+        .pc_o      (wb_pc_o        )
     );
     
     writeback writeback( 
@@ -131,7 +132,7 @@ module riscv_multicycle
         .dmem_i     (dmem_out_WB   ),
         .alu_i      (execute_out_WB),     
         .pc_plus4_i (pc_plus4_WB   ),    
-        .writeback_o(wb_out        ) 
+        .writeback_o(wb_out        )
     );
     
     hazard_unit hazard_unit(

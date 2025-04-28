@@ -20,7 +20,7 @@ module reg_file
     always_ff@(negedge clk_i) begin
         if(!rstn_i) begin
             for(int i = 0; i < 32; i = i + 1) begin
-                x[i] = 32'd0;
+                x[i] <= 32'd0;
             end
         end else if(write_en_i & (addr_rd_i != 5'b00000)) begin
             x[addr_rd_i] <= data_rd_i;

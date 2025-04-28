@@ -9,6 +9,7 @@ module memory
     input  logic [ 0:0] clk_i,
     input  logic [ 0:0] rstn_i,
     input  control_t    control_i,
+    input  logic [31:0] pc_i,
     input  logic [31:0] pc_plus4_i,
     input  logic [ 4:0] addr_rd_i,
     input  logic [31:0] alu_i,
@@ -18,7 +19,8 @@ module memory
     output logic [31:0] pc_plus4_o,
     output logic [31:0] alu_o,
     output logic [31:0] dmem_MEM_o,
-    output logic [31:0] dmem_WB_o
+    output logic [31:0] dmem_WB_o,
+    output logic [31:0] pc_o
     );
     
     logic [31:0] dmem_out;
@@ -39,12 +41,14 @@ module memory
         if(!rstn_i) begin
             addr_rd_o  <= 5'd0;
             control_o  <= MI_ADDI;
+            pc_o       <= 32'd0;
             pc_plus4_o <= 32'd0;
             alu_o      <= 32'd0;
             dmem_WB_o  <= 32'd0;
         end else begin
             addr_rd_o  <= addr_rd_i;
             control_o  <= control_i;
+            pc_o       <= pc_i;
             pc_plus4_o <= pc_plus4_i;
             alu_o      <= alu_i;
             dmem_WB_o  <= dmem_out;

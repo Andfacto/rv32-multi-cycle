@@ -20,8 +20,8 @@ module ALU
             ALU_SLL : result_o = op1_i <<  op2_i[4:0];
             ALU_SRL : result_o = op1_i >>  op2_i[4:0];
             ALU_SRA : result_o = $signed(op1_i) >>> op2_i[4:0];
-            ALU_SLT : result_o = $signed(op1_i) < $signed(op2_i); 
-            ALU_SLTU: result_o =         op1_i  <         op2_i;
+            ALU_SLT : result_o = {31'b0, $signed(op1_i) < $signed(op2_i)}; 
+            ALU_SLTU: result_o = {31'b0 ,        op1_i  <         op2_i};
             ALU_CTZ : result_o = ctz(op1_i);
             ALU_CLZ : result_o = clz(op1_i);
             ALU_CPOP: result_o = cpop(op1_i);

@@ -24,7 +24,8 @@ module decode
     output logic [31:0] source_mux1_o,
     output logic [31:0] source_mux2_o,
     output logic [ 4:0] addr_rd_o,
-    output logic [31:0] branch_in2_o
+    output logic [31:0] branch_in2_o,
+    output logic [31:0] pc_o
     );
     
     logic [ 0:0] branch_out;
@@ -41,7 +42,7 @@ module decode
         addr_rs1_ID_o = imem_i.rs1;
         addr_rs2_ID_o = imem_i.rs2;
         
-        if(imem_i == OP_LUI)
+        if(imem_i.opcode == OP_LUI)
             source_mux1 = 32'd0;
         else if(control.operand1 == OPERAND_PCIMM)
             source_mux1 = pc_i;
@@ -151,6 +152,7 @@ module decode
             control_o     <= MI_ADDI;
             source_mux1_o <= 32'd0;
             source_mux2_o <= 32'd0;
+            pc_o          <= 32'd0;
             pc_plus4_o    <= 32'd0;
             branch_in2_o  <= 32'd0;
         end else if(hazard_i.flush_ex) begin
@@ -159,6 +161,7 @@ module decode
             control_o     <= MI_ADDI;
             source_mux1_o <= 32'd0;
             source_mux2_o <= 32'd0;
+            pc_o          <= 32'd0;
             pc_plus4_o    <= 32'd0;
             branch_in2_o  <= 32'd0;
         end else begin
@@ -167,7 +170,8 @@ module decode
             source_mux1_o <= source_mux1;
             source_mux2_o <= source_mux2;
             pc_plus4_o    <= pc_plus4_i;
-            addr_rd_o     <= imem_i.rtype.rd;
+            pc_o          <= pc_i;
+            addr_rd_o     <= imem_i.rd;
             branch_in2_o  <= branch_in2;
         end
     end

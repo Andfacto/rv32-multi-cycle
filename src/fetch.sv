@@ -12,6 +12,7 @@ module fetch
     input  hazard_t     hazard_i,
     input  logic [31:0] execute_i,
     output logic [31:0] pc_o,
+    output logic [31:0] pc_if_o,
     output logic [31:0] pc_plus4_o,
     output logic [31:0] imem_o
     );
@@ -20,6 +21,8 @@ module fetch
     logic [31:0] pc_in;
     logic [31:0] pc_out;
     logic [31:0] pc_plus4;
+    
+    assign pc_if_o = pc_out;
     
     assign pc_plus4 = pc_out + 4;
     assign pc_in    = branch_EX_i ? execute_i : pc_plus4;

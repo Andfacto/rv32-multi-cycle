@@ -1047,15 +1047,4 @@ package riscv_pkg;
     end
   endfunction
 
-  typedef struct {
-    byte priv;
-    longint unsigned pc;
-    byte is_fp;
-    byte rd;
-    longint unsigned data;
-    int unsigned instr;
-    byte was_exception;
-  } commit_log_t;
-  // pragma translate_on
-
 endpackage
